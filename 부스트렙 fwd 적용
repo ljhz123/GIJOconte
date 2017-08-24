@@ -1,0 +1,75 @@
+############################data_narm_2 를 이용############################
+
+fn.Fmeasure = function(data,index){
+  
+}
+data = data_narm_2
+str(data)
+for(i in 1:length(data)){
+  if(is.character(data[,i]))
+  {
+    if(i == 52){
+      next
+    }
+    data[,i] = as.factor(data[,i])
+    print(i)
+  }
+}
+which(colnames(data)=='AGE')
+which(colnames(data)=='BNK_LNIF_CNT')
+data$BNK_LNIF_CNT = as.factor(data$BNK_LNIF_CNT)
+data$AGE = as.integer(data$AGE)
+
+#regfit.fwd = regsubsets(data$TARGET~.,data=data,nvmax=100,method="forward")
+#reg.summary = summary(regfit.fwd)
+#plot(reg.summary$rss,xlab="변수선택갯수",ylab='RSS',type='l')
+#plot(reg.summary$adjr2,xlab="변수선택갯수",ylab='Adjusted RSq',type='l')
+which.max(reg.summary$adjr2)
+###########select 15 ###############
+#set.seed(1)
+#data_sample = sample(1:dim(Hitters)[1],dim(Hitters)[1]*0.1,replace =T) ##0.1만큼 추출
+#boot.matrix = matrix()
+boot.martix = c()
+str(data$BNK_LNIF_CNT)
+for (i in c(1:1000)) {
+  data_sample = sample(1:dim(data)[1],dim(data)[1]*0.1,replace =T) ##0.1만큼 추출
+  regfit.fwd = regsubsets(data[data_sample,]$TARGET~.,data=data[data_sample,],nvmax=50,method="forward")
+  reg.summary = summary(regfit.fwd)
+  var10 = reg.summary$which[40,] #######10개의 설명변수 뽑기위해
+  var10[which(var10==TRUE)]=1 ###TRUE 를 1로
+  boot.martix = rbind(boot.martix,var10)
+  
+  cat('.')
+  #plot(reg.summary$adjr2,xlab="변수선택갯수",ylab='Adjusted RSq',type='l')
+  #which.max(reg.summary$adjr2)
+}
+print(boot.martix)
+
+##########################계산과정 ##################################
+#boot.martix[,2]
+boot.prop =c()
+boot.props = c()
+for (i in 2:ncol(boot.martix))
+{
+  boot.prop= c(boot.prop,sum(boot.martix[,i])/length(boot.martix[,i]))
+  #boot.props = cbind(boot.props,boot.prop)
+}
+boot.prop[which(boot.prop>0.5)]##설명력잇는거만찾기
+aa = boot.prop[which(boot.prop>0.5)]
+index = which(boot.prop>0.5)
+aad = sort(aa,decreasing = T)
+boot.prop[]
+xx =cbind(aa,which(boot.prop>0.5))
+dxx = as.data.frame(xx)
+index_decreasing = dxx[order(dxx$aa,decreasing = T),]$V2
+dxx = dxx[order(dxx$aa,decreasing = T),]
+colnames(boot.martix)[index_decreasing]
+dxx = cbind(dxx,colnames(boot.martix)[index_decreasing])
+#ctrl shift c
+# [1] "SPTCT_OCCR_MDIF"      "CRDT_CARD_CNT"        "PAYM_METDO"          
+# [4] "LT1Y_MXOD_AMT"        "PAYM_METDK"           "CRDT_OCCR_MDIF"      
+# [7] "LINE_STUSU"           "CBPT_MBSP_YNY"        "NUM_DAY_SUSP"        
+# [10] "CPT_LNIF_CNT"         "LT1Y_PEOD_RATE90미만" "TLFE_UNPD_CNT"       
+# [13] "CPT_LNIF_AMT"         "LT1Y_PEOD_RATE60미만" "CNTT_LAMT_CNT"       
+# [16] "ECT_LNIF_CNT"         "LT1Y_PEOD_RATE20미만"
+
