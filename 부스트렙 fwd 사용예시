@@ -1,0 +1,39 @@
+##################################부스트렙 + fwd 사용하여 체크 #################################################
+data_sample = sample(1:dim(Hitters)[1],dim(Hitters)[1],replace =T)
+fn.Fmeasure = function(data,index){
+    
+}
+
+regfit.fwd = regsubsets(Salary~.,data=Hitters,nvmax=11,method="forward")
+reg.summary = summary(regfit.fwd)
+plot(reg.summary$rss,xlab="변수선택갯수",ylab='RSS',type='l')
+plot(reg.summary$adjr2,xlab="변수선택갯수",ylab='Adjusted RSq',type='l')
+which.max(reg.summary$adjr2)
+
+#set.seed(1)
+#data_sample = sample(1:dim(Hitters)[1],dim(Hitters)[1]*0.1,replace =T) ##0.1만큼 추출
+#boot.matrix = matrix()
+boot.martix = c()
+for (i in c(1:1000)) {
+  data_sample = sample(1:dim(Hitters)[1],dim(Hitters)[1]*0.3,replace =T) ##0.1만큼 추출
+  regfit.fwd = regsubsets(Salary~.,data=Hitters[data_sample,],nvmax=19,method="forward")
+  reg.summary = summary(regfit.fwd)
+  var10 = reg.summary$which[10,] #######10개의 설명변수 뽑기위해
+  var10[which(var10==TRUE)]=1 ###TRUE 를 1로
+  boot.martix = rbind(boot.martix,var10)
+  
+  
+  #plot(reg.summary$adjr2,xlab="변수선택갯수",ylab='Adjusted RSq',type='l')
+  #which.max(reg.summary$adjr2)
+}
+print(boot.martix)
+##########################계산과정 ##################################
+#boot.martix[,2]
+boot.prop =c()
+boot.props = c()
+for (i in 2:ncol(boot.martix))
+{
+  boot.prop= c(boot.prop,sum(boot.martix[,i])/length(boot.martix[,i]))
+  #boot.props = cbind(boot.props,boot.prop)
+}
+boot.prop[which(boot.prop>0.5)]
